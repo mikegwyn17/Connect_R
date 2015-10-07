@@ -16,6 +16,8 @@ int main (void)
 	int number_of_columns = 0;
 	int number_of_rows = 0;
 	int r = 0;
+	int added_row = 0;
+	int added_column = 0;
 	string input;
 
 	cout << "Enter the number of rows ";
@@ -38,7 +40,12 @@ int main (void)
 	{
 		cout << "Choose column to play in (0 - " << number_of_columns-1 << "): ";
 		player_move = read_int();
-		board->play(player_move,'x');
+		board->play(player_move,'x',added_column, added_row);
+		count++;
+		if (count >= r)
+		{
+			cout << board->check_board('x',added_column,added_row);
+		}
 		output = board->to_string();
 		cout << output << endl;
 		cout << "('quit' to exit) : ";
