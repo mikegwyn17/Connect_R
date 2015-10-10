@@ -1,4 +1,4 @@
-#include "Board.h"
+#include "Board_2.h"
 // simple method used to make reading in int values from user easier
 int read_int ()
 {
@@ -18,19 +18,19 @@ int main (void)
 	int r = 0;
 	string input;
 
-	cout << "Enter the number of rows ";
-	number_of_rows = read_int();
-	cout << endl;
-
 	cout << "Enter number of columns ";
 	number_of_columns = read_int();
+	cout << endl;
+
+	cout << "Enter the number of rows ";
+	number_of_rows = read_int();
 	cout << endl;
 
 	cout << "Enter the number required to win ";
 	r = read_int();
 	cout << endl;
 
-	Board* board = new Board();
+	Board_2* board = new Board_2();
 	board->Build_Board(number_of_columns,number_of_rows,r);
 	string output = board->to_string();
 	cout << output << '\n';
