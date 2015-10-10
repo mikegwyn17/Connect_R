@@ -30,24 +30,64 @@ string Board::to_string () const
 	return output;
 }
 
-void Board::play(const int column, const char character)
+void Board::play(const int column, const char character, int& added_column, int& added_row)
 {
-	int size = board.size()-1;
+	int size = number_of_columns-1;
 	if (board[size][column] == '-')
+	{
 		board[size][column] = character;
+		added_column = column;
+		added_row = size;
+	}
 	else if (board[0][column] != '-')
 		;
 	else
 	{
-		for (int row = 0; row < board.size(); row++)
+		for (int row = 0; row < number_of_columns; row++)
 		{
 			if (board[row][column] != '-')
+			{
 				board[row-1][column] = character;
+				added_column = column;
+				added_row = row-1;
+			}
 		}
 	}
 }
 
-void Board::check_board () const
+bool Board::check_board (const char player_piece, int added_column, int added_row) const
 {
+	bool is_solved = false;
+	unsigned count = 0;
 
-}
+	// check to see if row is solved
+	if (added_row == number_of_rows)
+	{
+		if (board[added_column-1][added_row-1] != player_piece)
+			;
+
+		else
+		{
+			count++;
+			for (int i = number_of_columns-1; i >= 0; i--)
+			{
+				if (board[added_column][i] != player_piece)
+					break;
+				else
+					count++;
+				if (count == r)
+				{
+					is_solved = true;
+					cout << is_solved << endl;
+					return is_solved;
+				}
+			}
+		}
+	}
+
+	else
+	{
+		cout << is_solved << endl;
+		return is_solved;
+	}
+	}
