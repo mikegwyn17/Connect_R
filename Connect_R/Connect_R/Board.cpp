@@ -90,4 +90,4 @@ bool Board::check_board (const char player_piece, int added_column, int added_ro
 		cout << is_solved << endl;
 		return is_solved;
 	}
-	}
+}

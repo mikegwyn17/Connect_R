@@ -1,5 +1,5 @@
 #include "Board_2.h"
-
+// method used to move around the board which is vector of chars
 int move (int index, const int columns, int rows, string type)
 {
 	if (type == "down")
@@ -11,7 +11,7 @@ int move (int index, const int columns, int rows, string type)
 	}
 	else if (type == "up")
 	{
-		index += columns;
+		index -= columns;
 		if (index >= columns * rows)
 			return -1;
 		return index;
@@ -47,7 +47,7 @@ int move (int index, const int columns, int rows, string type)
 		else
 			return index;
 	}
-	else
+	else if (type == "down-left-diagnol")
 	{
 		index += (columns+1);
 		if (index >= columns*rows)
@@ -55,62 +55,29 @@ int move (int index, const int columns, int rows, string type)
 		else
 			return index;
 	}
+	else 
+		return -1;
 }
 
-//int move_down (int index, const int columns, const int rows)
-//{
-//	index += columns;
-//	if (index >= columns * rows)
-//		return -1;
-//	return index;
-//}
-//
-//int move_up (int index, const int columns)
-//{
-//	index -= columns;
-//	if (index < 0)
-//		return -1;
-//	return index;
-//}
-//
-//int move_left (int index, const int columns)
-//{
-//	if (index / columns == index-1 / columns)
-//		return index-1;
-//	else
-//		return -1;
-//}
-//
-//int move_right (int index, const int columns)
-//{
-//	if (index / columns == index+1 / columns)
-//		return index+1;
-//	else
-//		return -1;
-//}
-//
-//int move_left_diagnol (int index, const int columms)
-//{
-//	index -= (columms-1);
-//	if (index < 0)
-//		return-1;
-//	else
-//		return index;
-//}
-//
-//int move_left_diagnol (int index, const int columns)
-//{
-//	index -= (columns+1);
-//	if (index < 0)
-//		return -1;
-//	else
-//		return index;
-//}
-//
-//int move_left_diagnol (int index, const int columns)
-//{
-//
-//}
+int Board_2::get_columns ()
+{
+	return columns;
+}
+
+int Board_2::get_rows ()
+{
+	return rows;
+}
+
+int Board_2::get_r ()
+{
+	return r;
+}
+
+void Board_2::set_board (const vector<char> passed_board )
+{
+	board = passed_board;
+}
 
 Board_2::Board_2 ()
 {
@@ -138,19 +105,21 @@ string Board_2::to_string () const
 	return output;
 }
 
-
-
-void Board_2::play(const int column, const char player_piece)
+vector<char> Board_2::play(const int column, const char player_piece)
 {
-	int index = column;
-	if (board[(index+1)*rows] == '-')
-		board[index*rows] == player_piece;
-	while (index != -1)
+	int to_play = column;
+	if (board[to_play] != '-')
+		cout << "cannot play here" << endl;
+	else
 	{
-		if (board[index] != '-')
-			board[move(index,columns,rows,"up")] = player_piece;
-		index = move(index,columns,rows,"down");
+		to_play = ((rows*columns) - columns) + column;
+		while (board[to_play] != '-')
+		{
+			to_play = move(to_play, columns, rows, "up");
+		}
+		board[to_play] = player_piece;
 	}
+	return board;
 }
 
 //void Board_2::check_board () const

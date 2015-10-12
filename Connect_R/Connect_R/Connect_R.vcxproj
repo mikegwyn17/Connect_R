@@ -80,10 +80,12 @@
   <ItemGroup>
     <ClInclude Include="Board.h" />
     <ClInclude Include="Board_2.h" />
+    <ClInclude Include="Board_Tree.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Board.cpp" />
     <ClCompile Include="Board_2.cpp" />
+    <ClCompile Include="Board_Tree.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
