@@ -83,6 +83,12 @@ Board_2::Board_2 ()
 {
 	columns = 7;
 	rows = 6;
+	r = 4;
+}
+
+Board_2::~Board_2 ()
+{
+	cout << "destructor" << endl;
 }
 
 void Board_2::Build_Board(const int number_of_columns, const int number_of_rows, const int win_condition)
@@ -122,7 +128,8 @@ vector<char> Board_2::play(const int column, const char player_piece)
 	return board;
 }
 
-//void Board_2::check_board () const
-//{
-//
-//}
+void Board_2::check_board () const
+{
+	int current_index = ((rows*columns) - columns) + (columns/2);
+	cout << current_index << endl;
+}

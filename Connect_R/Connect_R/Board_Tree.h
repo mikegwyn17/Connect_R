@@ -1,7 +1,8 @@
-#ifndef _Board_TREE_H_
+#ifndef _BOARD_TREE_H_
 #define _BOARD_TREE_H_
 
 #include "Board_2.h"
+#include <stack>
 
 class Board_Tree
 {

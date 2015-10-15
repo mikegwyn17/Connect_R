@@ -3,8 +3,6 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <sstream>
-#include <stdio.h>
 
 using namespace std;
 
@@ -26,6 +24,6 @@ class Board_2
 		void Build_Board(const int rows,const int columns, const int win_condition);
 		string to_string () const;
 		vector<char> play (const int column, const char character);
-		//void check_board () const;
+		void check_board () const;
 };
 #endif 

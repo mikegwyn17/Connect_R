@@ -1,5 +1,6 @@
 #include "Board_2.h"
 #include "Board_Tree.h"
+#include <limits>
 // simple method used to make reading in int values from user easier
 int read_int ()
 {
@@ -35,8 +36,8 @@ int main (void)
 
 	Board_Tree* tree = new Board_Tree();
 	Board_2* board = new Board_2();
-	tree->build(*board);
 	board->Build_Board(number_of_columns,number_of_rows,r);
+	/*tree->build(*board);*/
 	string output = board->to_string();
 	cout << output << '\n';
 	while (cont)
@@ -44,11 +45,7 @@ int main (void)
 		cout << "Choose column to play in (0 - " << number_of_columns-1 << "): ";
 		player_move = read_int();
 		board->play(player_move, 'x');
-		count++;
-		//if (count >= r)
-		//{
-		//	cout << board->check_board('x',added_column,added_row);
-		//}
+		board->check_board();
 		output = board->to_string();
 		cout << output << endl;
 		cout << "('quit' to exit) : ";
@@ -56,6 +53,7 @@ int main (void)
 		if (input == "quit")
 			cont = false;
 	}
-	system("pause");
+	cout << "Press ENTER to continue...";
+  	cin.ignore( numeric_limits<streamsize>::max(), '\n' );
 	return 1;
 };
