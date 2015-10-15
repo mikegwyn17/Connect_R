@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <set>
+#include <limits>
 
 using namespace std;
 
@@ -13,6 +15,8 @@ class Board_2
 		int columns;
 		int rows;
 		int r;
+		set<int> used_columns;
+		set<int> used_rows;
 
 	public:
 		Board_2 ();
@@ -24,6 +28,6 @@ class Board_2
 		void Build_Board(const int rows,const int columns, const int win_condition);
 		string to_string () const;
 		vector<char> play (const int column, const char character);
-		void check_board (const char player_piece) const;
+		double check_board (const bool is_turn, const char player_piece) const;
 };
 #endif 
