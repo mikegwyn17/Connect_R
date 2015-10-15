@@ -9,7 +9,7 @@ using namespace std;
 class Board_2
 {
 	private:
-		vector<char> board;
+		vector<char> board; // board state is represented as a vector of chars
 		int columns;
 		int rows;
 		int r;
@@ -24,6 +24,6 @@ class Board_2
 		void Build_Board(const int rows,const int columns, const int win_condition);
 		string to_string () const;
 		vector<char> play (const int column, const char character);
-		void check_board () const;
+		void check_board (const char player_piece) const;
 };
 #endif 

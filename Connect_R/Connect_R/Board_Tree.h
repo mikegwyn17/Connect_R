@@ -10,12 +10,12 @@ class Board_Tree
 	struct board_node
 	{
 		double utiliity; // used to store the value found by the heuristic 
-		Board_2 board;
-		vector<board_node*> children;
-		void add(board_node* n) {children.push_back(n);}
-		int size() {return children.size();}
+		Board_2 board; // stores the current board linked to the board node
+		vector<board_node*> children; // vector to store the children of the board node
+		void add(board_node* n) {children.push_back(n);} // method used to add children to the board node
+		int size() {return children.size();} // return the number of children for the board node
 	};
-	board_node* root;
+	board_node* root; // root node used to store the start of the board tree
 
 	public:
 
@@ -23,7 +23,7 @@ class Board_Tree
 		
 		~Board_Tree();
 
-		// parse method
+		// method used to create the board tree
 		void build(Board_2 board);
 	};
 	#endif 

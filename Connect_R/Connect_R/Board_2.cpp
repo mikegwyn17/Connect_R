@@ -90,7 +90,7 @@ Board_2::~Board_2 ()
 {
 	cout << "destructor" << endl;
 }
-
+// create a board based on the given parameters
 void Board_2::Build_Board(const int number_of_columns, const int number_of_rows, const int win_condition)
 {
 	columns = number_of_columns;
@@ -99,6 +99,7 @@ void Board_2::Build_Board(const int number_of_columns, const int number_of_rows,
 	board.resize(columns*rows,'-');
 }
 
+// return string representation of the board to show the user what the current board state is
 string Board_2::to_string () const
 {
 	string output = "";
@@ -110,15 +111,16 @@ string Board_2::to_string () const
 	}
 	return output;
 }
-
+// used to place a piece on the connect R board, starts at the bottom and works it way up
 vector<char> Board_2::play(const int column, const char player_piece)
 {
+	// check the top of the column to see if it is full, if so it is an illeagal move
 	int to_play = column;
 	if (board[to_play] != '-')
 		cout << "cannot play here" << endl;
 	else
 	{
-		to_play = ((rows*columns) - columns) + column;
+		to_play = ((rows*columns) - columns) + column; // start at the bottom of the board in the given column
 		while (board[to_play] != '-')
 		{
 			to_play = move(to_play, columns, rows, "up");
@@ -128,8 +130,16 @@ vector<char> Board_2::play(const int column, const char player_piece)
 	return board;
 }
 
-void Board_2::check_board () const
+// heuristic used to determine the utility of the current board
+// starts at middle bottom cell and checks to see what color that piece is
+// if it is the AI's color it checks all around the cell and adds ten to the the 
+// utility for every cell in it that makes up a R length line of cells, and subtracts for the other players color
+// if winning or loosing move is found number is set to either the largest of smallest possible int
+void Board_2::check_board (const char player_piece) const
 {
-	int current_index = ((rows*columns) - columns) + (columns/2);
-	cout << current_index << endl;
+	int current_index = ((rows*columns) - columns) + (columns); // start at the bottom middle cell
+	if (board[current_index] == player_piece)
+	{
+		
+	}
 }
