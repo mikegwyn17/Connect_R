@@ -162,10 +162,11 @@ double check_columns (const bool is_turn, const char player_piece, set<int> used
 			else if (board[i] == '-')
 			{
 				if(ai_last)
-					utility -= (player_count*10);
-				
+					utility += (ai_count*(10+ai_count));
+					
 				else
-					utility += (ai_count*10);
+					utility -= (player_count*(10+player_count));
+					
 				player_count = 0;
 				ai_count = 0;
 				break;
@@ -185,7 +186,6 @@ double check_columns (const bool is_turn, const char player_piece, set<int> used
 			}
 			i = move(i,columns,rows,"up");
 		}
-		
 	}
 	return utility;
 }
@@ -207,7 +207,6 @@ double Board_2::check_board (const bool is_turn, const char player_piece) const
 	utilitly += check_columns(is_turn,player_piece,used_columns,columns,rows,r,board,is_limit);
 	if (is_limit) 
 		return utilitly; // if a killer move was found return that killer move
-
 
 	return utilitly;
 }

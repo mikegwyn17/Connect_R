@@ -53,7 +53,12 @@ int main (void)
 			board->play(random,'o');
 			random = (rand() % number_of_columns);
 		}
-		
+	//board->play(0,'o');
+	//board->play(1,'o');
+	//board->play(2,'x');
+	//board->play(2,'o');
+	//board->play(4,'x');
+	//board->play(5,'x');
 		output = board->to_string();
 		cout << output << endl;
 		cout << board->check_board(true,'x') << endl;
