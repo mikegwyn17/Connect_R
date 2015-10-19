@@ -46,17 +46,19 @@ int main (void)
 		/*cout << "Choose column to play in (0 - " << number_of_columns-1 << "): ";*/
 		/*player_move = read_int();*/
 		int random = (rand() % number_of_columns);
-		for (int i = 0; i < 3; i++)
-		{
-			board->play(random,'x');
-			random = (rand() % number_of_columns);
-			board->play(random,'o');
-			random = (rand() % number_of_columns);
-		}
-	//board->play(0,'o');
-	//board->play(1,'o');
+		board->play(random,'x');
+		tree->build(*board);
+		//for (int i = 0; i < 5; i++)
+		//{
+		//	board->play(random,'x');
+		//	random = (rand() % number_of_columns);
+		//	board->play(random,'o');
+		//	random = (rand() % number_of_columns);
+		//}
+	//board->play(0,'x');
+	//board->play(1,'x');
 	//board->play(2,'x');
-	//board->play(2,'o');
+	//board->play(3,'x');
 	//board->play(4,'x');
 	//board->play(5,'x');
 		output = board->to_string();

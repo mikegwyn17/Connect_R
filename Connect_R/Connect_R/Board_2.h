@@ -17,6 +17,7 @@ class Board_2
 		int r;
 		set<int> used_columns;
 		set<int> used_rows;
+		vector<int> placed_pieces;
 
 	public:
 		Board_2 ();

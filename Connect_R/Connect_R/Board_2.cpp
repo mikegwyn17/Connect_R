@@ -18,8 +18,15 @@ int move (int index, const int columns, int rows, string type)
 	}
 	else if (type == "left")
 	{
-		if (index / columns == index-1 / columns)
+		if (index / columns == (index-1) / columns)
 			return index-1;
+		else
+			return -1;
+	}
+	else if (type == "right")
+	{
+		if (index / columns == (index+1) / columns)
+			return index+1;
 		else
 			return -1;
 	}
@@ -127,7 +134,7 @@ vector<char> Board_2::play(const int column, const char player_piece)
 		}
 		board[to_play] = player_piece;
 		used_columns.insert(column);
-		cout << to_play/columns << endl;
+		used_rows.insert(to_play/columns);
 		
 	}
 	return board;
@@ -141,12 +148,12 @@ double check_columns (const bool is_turn, const char player_piece, set<int> used
 	int ai_count = 0;
 	int player_count = 0;
 	// check the columns to see if there 
-	for (auto i : used_columns)
+	for (auto column : used_columns)
 	{
-		i = ((rows*columns) - columns) + i;
-		while (i != -1)
+		column = ((rows*columns) - columns) + column;
+		while (column != -1)
 		{
-			if (board[i] == player_piece)
+			if (board[column] == player_piece)
 			{
 				ai_count++;
 				ai_last = true;
@@ -159,13 +166,13 @@ double check_columns (const bool is_turn, const char player_piece, set<int> used
 				//utility -= (player_count*10);
 				player_count = 0;
 			}
-			else if (board[i] == '-')
+			else if (board[column] == '-')
 			{
 				if(ai_last)
-					utility += (ai_count*(10+ai_count));
+					utility += (ai_count*(10+(ai_count*ai_count)));
 					
 				else
-					utility -= (player_count*(10+player_count));
+					utility -= (player_count*(10+(player_count*player_count)));
 					
 				player_count = 0;
 				ai_count = 0;
@@ -184,16 +191,110 @@ double check_columns (const bool is_turn, const char player_piece, set<int> used
 				//utility += (ai_count*10);
 				ai_count = 0;
 			}
-			i = move(i,columns,rows,"up");
+			column = move(column,columns,rows,"up");
+		}
+	}
+	return utility;
+}
+ 
+// check each of the rows that were played in and score the peices acordingly
+double check_rows (const bool is_turn, const char player_piece, set<int> used_rows, const int columns, const int rows, const int r, const vector<char> board, bool& is_limit)
+{
+	bool ai_last = false;
+	bool player_last = false;
+	double utility = 0;
+	int ai_count = 0;
+	int player_count = 0;
+	int space_count = 0;
+	int check_down = 0;
+
+	for (auto row : used_rows)
+	{
+		row *= (columns);
+		while (row != -1)
+		{
+			if (board[row] == player_piece)
+			{
+				if (player_last)
+					utility -= (player_count*(10+(player_count*player_count)));
+				ai_count++;
+				ai_last = true;
+				player_last = false;
+				if (ai_count == r && is_turn && space_count == 0) // if the winning move is found stop there and return the max value
+				{
+					is_limit = true;
+					return numeric_limits<double>::max();
+				}
+				player_count = 0;
+				space_count = 0;
+			}
+			else if (board[row] == '-')
+			{
+				if (ai_last)
+				{
+					check_down = move(row, columns, rows, "down");
+					if (check_down != -1)
+					{
+						if (board[check_down] != '-')
+							utility += 10;
+					}
+				}
+				else if (player_last)
+				{
+					check_down = move(row, columns, rows, "down");
+					if (check_down != -1)
+					{
+						if (board[check_down] != '-')
+							utility -= 10;
+					}
+				}
+				else
+					;
+				space_count++;
+				if (space_count > 1)
+				{
+					if(ai_last)
+						utility += (ai_count*(10+(ai_count*ai_count)));
+					
+					else if (player_last)
+						utility -= (player_count*(10+(player_count*player_count)));
+					player_count = 0;
+					ai_count = 0;
+				}
+			}
+			else
+			{
+				if (ai_last)
+					utility += (ai_count*(10+(ai_count*ai_count)));
+				player_count++;
+				player_last = true;
+				ai_last = false;
+				if (player_count == r && !is_turn && space_count == 0) // if the losing move is found stop there and return the min value
+				{
+					is_limit = true;
+					return numeric_limits<double>::min();
+				}
+				ai_count = 0;
+				space_count = 0;
+			}
+			row = move(row, columns, rows, "right");
 		}
 	}
 	return utility;
 }
 
-//double check_rows (const bool is_turn, const char player_piece, set<int> used_columns, const int columns, const int rows, const int r, const vector<char> board, bool& is_limit)
-//{
-//
-//}
+double check_diagonals (const bool is_turn, const char player_piece, vector<int> placed_pieces, const int columns, const int rows, const int r, const vector<char> board, bool& is_limit)
+{
+	bool ai_last = false;
+	bool player_last = false;
+	double utility = 0;
+	int ai_count = 0;
+	int player_count = 0;
+	int space_count = 0;
+	int check_down = 0;
+
+	return utility;
+}
 
 // heuristic used to determine the utility of the current board
 // starts at the bottom cell and checks to see what color that piece is
@@ -204,9 +305,17 @@ double Board_2::check_board (const bool is_turn, const char player_piece) const
 {
 	bool is_limit = false;
 	double utilitly = 0;
-	utilitly += check_columns(is_turn,player_piece,used_columns,columns,rows,r,board,is_limit);
+	double temp = 0;
+	temp = check_columns(is_turn,player_piece,used_columns,columns,rows,r,board,is_limit);
 	if (is_limit) 
-		return utilitly; // if a killer move was found return that killer move
+		return temp; // if a killer move was found return that killer move
+	else
+		utilitly += temp;
+	temp = check_rows(is_turn, player_piece, used_rows, columns, rows, r, board, is_limit);
+	if (is_limit)
+		return temp;
+	else 
+		utilitly += temp;
 
 	return utilitly;
 }

@@ -7,6 +7,7 @@ Board_Tree::Board_Tree ()
 	root = new board_node();
 }
 
+
 void Board_Tree::build(Board_2 board)
 {
 	board_node* current = new board_node();
