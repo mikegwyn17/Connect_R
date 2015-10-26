@@ -33,15 +33,15 @@ int move (int index, const int columns, int rows, string type)
 	else if (type == "up_left_diagnol")
 	{
 		index -= (columns-1);
-		if (index < 0)
+		if (index <= 0)
 			return-1;
 		else
 			return index;
 	}
 	else if (type == "up-right-diagnol")
 	{
-		index -= (columns+1);
-		if (index < 0)
+		index -= columns-1;
+		if (index <= 0)
 			return -1;
 		else
 			return index;
@@ -286,6 +286,8 @@ double check_rows (const bool is_turn, const char player_piece, set<int> used_ro
 			}
 			row = move(row, columns, rows, "right");
 		}
+
+
 	}
 	return utility;
 }
@@ -302,7 +304,7 @@ double check_diagonals (const bool is_turn, const char player_piece, const int c
 	int diaganol = 0;
 
 	// check the down right diagonals 
-	for (int i = 0; i < columns - r; i++)
+	for (int i = 0; i <= columns - r; i++)
 	{
 		diaganol = i;
 		while (diaganol != -1)
@@ -375,7 +377,18 @@ double check_diagonals (const bool is_turn, const char player_piece, const int c
 		}	
 	}
 
-	for (int i = 0; i/columns < (columns-r)-1; i+=columns)
+	// reset value before running loop again, probably not too efficient
+	ai_last = false;
+	player_last = false;
+	utility = 0;
+	ai_count = 0;
+	player_count = 0;
+	space_count = 0;
+	check_down = 0;
+	diaganol = 0;
+
+	// check the other down right diagnols
+	for (int i = columns; i/columns < (columns-r); i+=columns)
 	{
 		diaganol = i;
 		while (diaganol != -1)
@@ -443,8 +456,177 @@ double check_diagonals (const bool is_turn, const char player_piece, const int c
 				}
 				ai_count = 0;
 				space_count = 0;
+				0 + 1;
 			}
 			diaganol = move(diaganol, columns, rows, "down-right-diagnol");
+		}	
+	}
+
+	ai_last = false;
+	player_last = false;
+	utility = 0;
+	ai_count = 0;
+	player_count = 0;
+	space_count = 0;
+	check_down = 0;
+	diaganol = 0;
+
+	// check the up right Diaganols
+	for (int i = (columns-r)*columns; i <= (rows*columns)-columns; i+=columns)
+	{
+		diaganol = i;
+		while (diaganol != -1)
+		{
+			if (board[diaganol] == player_piece)
+			{
+				if (player_last)
+					utility -= (player_count*(10+(player_count*player_count)));
+				ai_count++;
+				ai_last = true;
+				player_last = false;
+				if (ai_count == r && is_turn && space_count == 0) // if the winning move is found stop there and return the max value
+				{
+					is_limit = true;
+					return numeric_limits<double>::max();
+				}
+				player_count = 0;
+				space_count = 0;
+			}
+			else if (board[diaganol] == '-')
+			{
+				if (ai_last)
+				{
+					check_down = move(diaganol, columns, rows, "down");
+					if (check_down != -1)
+					{
+						if (board[check_down] != '-')
+							utility += 10;
+					}
+				}
+				else if (player_last)
+				{
+					check_down = move(diaganol, columns, rows, "down");
+					if (check_down != -1)
+					{
+						if (board[check_down] != '-')
+							utility -= 10;
+					}
+				}
+				else
+					;
+				space_count++;
+				if (space_count > 1)
+				{
+					if(ai_last)
+						utility += (ai_count*(10+(ai_count*ai_count)));
+					
+					else if (player_last)
+						utility -= (player_count*(10+(player_count*player_count)));
+					player_count = 0;
+					ai_count = 0;
+				}
+			}
+			else
+			{
+				if (ai_last)
+					utility += (ai_count*(10+(ai_count*ai_count)));
+				player_count++;
+				player_last = true;
+				ai_last = false;
+				if (player_count == r && !is_turn && space_count == 0) // if the losing move is found stop there and return the min value
+				{
+					is_limit = true;
+					return numeric_limits<double>::min();
+				}
+				ai_count = 0;
+				space_count = 0;
+				0 + 1;
+			}
+			diaganol = move(diaganol, columns, rows, "up-right-diagnol");
+		}	
+	}
+
+	ai_last = false;
+	player_last = false;
+	utility = 0;
+	ai_count = 0;
+	player_count = 0;
+	space_count = 0;
+	check_down = 0;
+	diaganol = 0;
+
+	// check the other up right Diaganols
+	for (int i = (columns*rows)-(columns-1); (i-((columns*rows)-columns)) <= columns-r; i++)
+	{
+		diaganol = i;
+		while (diaganol != -1)
+		{
+			if (board[diaganol] == player_piece)
+			{
+				if (player_last)
+					utility -= (player_count*(10+(player_count*player_count)));
+				ai_count++;
+				ai_last = true;
+				player_last = false;
+				if (ai_count == r && is_turn && space_count == 0) // if the winning move is found stop there and return the max value
+				{
+					is_limit = true;
+					return numeric_limits<double>::max();
+				}
+				player_count = 0;
+				space_count = 0;
+			}
+			else if (board[diaganol] == '-')
+			{
+				if (ai_last)
+				{
+					check_down = move(diaganol, columns, rows, "down");
+					if (check_down != -1)
+					{
+						if (board[check_down] != '-')
+							utility += 10;
+					}
+				}
+				else if (player_last)
+				{
+					check_down = move(diaganol, columns, rows, "down");
+					if (check_down != -1)
+					{
+						if (board[check_down] != '-')
+							utility -= 10;
+					}
+				}
+				else
+					;
+				space_count++;
+				if (space_count > 1)
+				{
+					if(ai_last)
+						utility += (ai_count*(10+(ai_count*ai_count)));
+					
+					else if (player_last)
+						utility -= (player_count*(10+(player_count*player_count)));
+					player_count = 0;
+					ai_count = 0;
+				}
+			}
+			else
+			{
+				if (ai_last)
+					utility += (ai_count*(10+(ai_count*ai_count)));
+				player_count++;
+				player_last = true;
+				ai_last = false;
+				if (player_count == r && !is_turn && space_count == 0) // if the losing move is found stop there and return the min value
+				{
+					is_limit = true;
+					return numeric_limits<double>::min();
+				}
+				ai_count = 0;
+				space_count = 0;
+				0 + 1;
+			}
+			diaganol = move(diaganol, columns, rows, "up-right-diagnol");
 		}	
 	}
 	return utility;
