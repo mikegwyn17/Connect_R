@@ -1,12 +1,16 @@
-#include "Board_2.h"
-//#include "Board_Tree.h"
-#include "Connect_R_AI.h"
-#include <time.h>
+#include "AI.h"
+#include <string>
+#include <vector>
+#include <set>
+#include <limits>
+#include <iostream>
+
+
 // simple method used to make reading in int values from user easier
-int read_int ()
+int read_int_m ()
 {
 	string input = "";
-	getline(cin, input);
+	getline(std::cin, input);
 	int value = atoi(input.c_str());
 	return value;
 }
@@ -23,67 +27,31 @@ int main (void)
 	int added_column = 0;
 	string input;
 
-	cout << "Enter number of columns ";
-	number_of_columns = read_int();
-	cout << endl;
+	// create the starting board
+	vector<char> starting_board;
 
-	cout << "Enter the number of rows ";
-	number_of_rows = read_int();
-	cout << endl;
+	std::cout << "Enter number of columns ";
+	number_of_columns = read_int_m();
+	std::cout << endl;
 
-	cout << "Enter the number required to win ";
-	r = read_int();
-	cout << endl;
+	std::cout << "Enter the number of rows ";
+	number_of_rows = read_int_m();
+	std::cout << endl;
 
-	srand (time(NULL));
-	Board_2* board = new Board_2();
-	board->Build_Board(number_of_columns,number_of_rows,r);
-	Connect_R_AI* ai = new Connect_R_AI(board);
-	/*tree->build(*board);*/
-	string output = board->to_string();
-	cout << output << '\n';
-	//while (cont)
-	//{
-		/*cout << "Choose column to play in (0 - " << number_of_columns-1 << "): ";*/
-		/*player_move = read_int();*/
-	//board->play(0,'x');
-	//board->play(1,'o');
-	//board->play(1,'x');
-	//board->play(2,'o');
-	//board->play(2,'o');
-	//board->play(2,'x');
-	//board->play(3,'o');
-	//board->play(3,'o');
-	//board->play(3,'o');
-	//board->play(3,'x');
-	//board->play(4,'x');
-	//board->play(5,'x');
-	
-		//ai->Minimax(0,true,numeric_limits<int>::max(),numeric_limits<int>::min());
-	int random = (rand()%number_of_columns);
-		for (int i = 0; i < 8; i++)
-		{
-			board->play(random,'x');
-			random = (rand() % number_of_columns);
-			board->play(random,'o');
-			random = (rand() % number_of_columns);
-		}
-	//board->play(0,'x');
-	//board->play(1,'x');
-	//board->play(2,'x');
-	//board->play(3,'x');
-	//board->play(4,'x');
-	//board->play(5,'x');
-		output = board->to_string();
-		cout << output << endl;
-		cout << board->check_board(true,'x') << endl;
-		/*cout << board->check_board(true,'x') << endl;*/
-		//cout << "('quit' to exit) : ";
-		//getline(cin, input);
-		//if (input == "quit")
-		//	cont = false;
-//	}
-	cout << "Press ENTER to continue...";
-  	cin.ignore( numeric_limits<streamsize>::max(), '\n' );
+	std::cout << "Enter the number required to win ";
+	r = read_int_m();
+	std::cout << endl;
+
+	starting_board.resize((number_of_columns*number_of_rows), '-');
+	AI::state_space game_state = AI::state_space(starting_board, r, number_of_columns, number_of_rows);
+	AI* ai = new AI();
+	cout << game_state.to_string() << endl;
+
+	ai->play(game_state, 3, false);
+	cout << ai->minimax(game_state) << endl;
+
+
+	std::cout << "Press ENTER to continue...";
+  	std::cin.ignore( numeric_limits<streamsize>::max(), '\n' );
 	return 1;
 };

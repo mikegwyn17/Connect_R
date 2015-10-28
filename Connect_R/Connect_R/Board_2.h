@@ -11,7 +11,6 @@ using namespace std;
 class Board_2
 {
 	private:
-		vector<char> board; // board state is represented as a vector of chars
 		int columns;
 		int rows;
 		int r;
@@ -20,8 +19,10 @@ class Board_2
 		vector<int> placed_pieces;
 		int placed_column;
 		int board_size;
+		int last_placed;
 
 	public:
+		vector<char> board; // board state is represented as a vector of chars
 		Board_2 ();
 		~Board_2();
 		int get_columns () const;
@@ -34,5 +35,8 @@ class Board_2
 		string to_string () const;
 		bool play (const int column, const char character);
 		double check_board (const bool is_turn, const char player_piece) const;
+		void undo_move (int column);
+		bool is_valid (int column) const;
+
 };
 #endif 

@@ -140,69 +140,69 @@ bool Board_2::play(const int column, const char player_piece)
 			to_play = move(to_play, columns, rows, "up");
 		}
 		board[to_play] = player_piece;
+		last_placed = to_play;
 		used_columns.insert(column);
 		used_rows.insert(to_play/columns);
-		
 	}
 	return true;
 }
 // function used to check each of the columns that have been played 
-double check_columns (const bool is_turn, const char player_piece, set<int> used_columns, const int columns, const int rows, const int r, const vector<char> board, bool& is_limit)
-{
-	bool ai_last = false;
-	bool player_last = false;
-	double utility = 0;
-	int ai_count = 0;
-	int player_count = 0;
-	// check the columns to see if there 
-	for (auto column : used_columns)
-	{
-		column = ((rows*columns) - columns) + column;
-		while (column != -1)
-		{
-			if (board[column] == player_piece)
-			{
-				ai_count++;
-				ai_last = true;
-				player_last = false;
-				if (ai_count == r && is_turn) // if the winning move is found stop there and return the max value
-				{
-					is_limit = true;
-					return numeric_limits<double>::max();
-				}
-				//utility -= (player_count*10);
-				player_count = 0;
-			}
-			else if (board[column] == '-')
-			{
-				if(ai_last)
-					utility += (ai_count*(10+(ai_count*ai_count)));
-					
-				else
-					utility -= (player_count*(10+(player_count*player_count)));
-					
-				player_count = 0;
-				ai_count = 0;
-				break;
-			}
-			else
-			{
-				player_count++;
-				player_last = true;
-				ai_last = false;
-				if (player_count == r && !is_turn) // if the losing move is found stop there and return the min value
-				{
-					is_limit = true;
-					return numeric_limits<double>::min();
-				}
-				//utility += (ai_count*10);
-				ai_count = 0;
-			}
-			column = move(column,columns,rows,"up");
-		}
-	}
-	return utility;
-}
+//double check_columns (const bool is_turn, const char player_piece, set<int> used_columns, const int columns, const int rows, const int r, const vector<char> board, bool& is_limit)
+//{
+//	bool ai_last = false;
+//	bool player_last = false;
+//	double utility = 0;
+//	int ai_count = 0;
+//	int player_count = 0;
+//	// check the columns to see if there 
+//	for (auto column : used_columns)
+//	{
+//		column = ((rows*columns) - columns) + column;
+//		while (column != -1)
+//		{
+//			if (board[column] == player_piece)
+//			{
+//				ai_count++;
+//				ai_last = true;
+//				player_last = false;
+//				if (ai_count == r && is_turn) // if the winning move is found stop there and return the max value
+//				{
+//					is_limit = true;
+//					return numeric_limits<double>::max();
+//				}
+//				//utility -= (player_count*10);
+//				player_count = 0;
+//			}
+//			else if (board[column] == '-')
+//			{
+//				if(ai_last)
+//					utility += (ai_count*(10+(ai_count*ai_count)));
+//					
+//				else
+//					utility -= (player_count*(10+(player_count*player_count)));
+//					
+//				player_count = 0;
+//				ai_count = 0;
+//				break;
+//			}
+//			else
+//			{
+//				player_count++;
+//				player_last = true;
+//				ai_last = false;
+//				if (player_count == r && !is_turn) // if the losing move is found stop there and return the min value
+//				{
+//					is_limit = true;
+//					return numeric_limits<double>::min();
+//				}
+//				//utility += (ai_count*10);
+//				ai_count = 0;
+//			}
+//			column = move(column,columns,rows,"up");
+//		}
+//	}
+//	return utility;
+//}
  
 // check each of the rows that were played in and score the peices acordingly
 double check_rows (const bool is_turn, const char player_piece, set<int> used_rows, const int columns, const int rows, const int r, const vector<char> board, bool& is_limit)
@@ -655,4 +655,26 @@ double Board_2::check_board (const bool is_turn, const char player_piece) const
 		utilitly += temp;
 
 	return utilitly;
+}
+ 
+// method used to undo the previous move allowing the state space to be enumerate correctly
+void Board_2::undo_move (int column)
+{
+	while (column != -1)
+	{
+		if (board[column] != '-')
+		{
+			board[column] = '-';
+			break;
+		}
+		column = move(column, columns, rows, "down");
+	}
+}
+
+bool Board_2::is_valid (int column) const
+{
+	if (board[column] != '-')
+		return false;
+	else
+		return true;
 }

@@ -78,16 +78,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Board.h" />
-    <ClInclude Include="Board_2.h" />
-    <ClInclude Include="Board_Tree.h" />
-    <ClInclude Include="Connect_R_AI.h" />
+    <ClInclude Include="AI.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Board.cpp" />
-    <ClCompile Include="Board_2.cpp" />
-    <ClCompile Include="Board_Tree.cpp" />
-    <ClCompile Include="Connect_R_AI.cpp" />
+    <ClCompile Include="AI.cpp" />
     <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
