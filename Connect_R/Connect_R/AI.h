@@ -62,7 +62,7 @@ public:
 	void maximize (state_space& current_state, int depth);
 	void minimize (state_space& current_state, int depth);
 	void score_state (state_space& current_state);
-	bool is_game_over (state_space& current_state); // checks to see if there is a winning move
+	int is_game_over (state_space& current_state); // checks to see if there is a winning move
 	bool is_board_full (state_space& current_state); // checks to see if the game is draw
 	state_space play (state_space& current_state, const int move, const bool is_turn); // used to add a piece to the board
 

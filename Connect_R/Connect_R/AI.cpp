@@ -2,6 +2,7 @@
 
 int move (int index, const int columns, int rows, string type)
 {
+	int temp = 0;
 	if (type == "down")
 	{
 		index += columns;
@@ -40,16 +41,18 @@ int move (int index, const int columns, int rows, string type)
 	}
 	else if (type == "up-right-diagnol")
 	{
+		temp = index;
 		index -= columns-1;
-		if (index <= 0)
+		if (index <= 0 || index/columns != ((temp/columns)-1))
 			return -1;
 		else
 			return index;
 	}
 	else if (type == "down-right-diagnol")
 	{
+		temp = index;
 		index += (columns+1);
-		if (index >= columns*rows)
+		if (index >= columns*rows || index/columns != ((temp/columns)+1))
 			return -1;
 		else
 			return index;
@@ -70,7 +73,7 @@ AI::AI(void)
 {
 	max_value = numeric_limits<int>::max();
 	min_value = numeric_limits<int>::min();
-	max_depth = 2;
+	max_depth = 6;
 }
 
 AI::~AI(void)
@@ -120,8 +123,8 @@ int AI::minimax(state_space& current_state)
 			move = i;
 		}
 	}
-	cout << "Computer played in " << move << endl;
-	return best_move;
+	/*cout << "Computer played in " << best_move << endl;*/
+	return move;
 }
 
 void AI::maximize (state_space& current_state, int depth)
@@ -174,6 +177,7 @@ void AI::minimize (state_space& current_state, int depth)
 	}
 	current_state.utility = m;
 }
+
 
 // part of the heuristic, checks all of the columns of the given board
 // and calculates a utility based on the placement of the pieces
@@ -337,97 +341,374 @@ int check_rows (const int columns, const int rows,
 
 // function used to check the diagnols and return a utility
 // based on the heuristic
-//int check_diagonals (const int columns, 
-//						const int rows, const int r, const vector<char> board,
-//						bool& is_limit, const int starting_value,
-//						const string direction)
-//{
-//	bool ai_last = false;
-//	bool player_last = false;
-//	int utility = 0;
-//	int ai_count = 0;
-//	int player_count = 0;
-//	int space_count = 0;
-//	int check_down = 0;
-//	int diaganol = 0;
-//	int mini = numeric_limits<int>::min();
-//	int maxi = numeric_limits<int>::max();
-//
-//	// check the down right diagonals 
-//	for (int i = starting_value; i <= columns - r; i++)
-//	{
-//		diaganol = i;
-//		while (diaganol != -1)
-//		{
-//			if (board[diaganol] == 'X')
-//			{
-//				if (player_last)
-//					utility -= (player_count*(10+(player_count*player_count)));
-//				ai_count++;
-//				ai_last = true;
-//				player_last = false;
-//				if (ai_count == r && space_count == 0) // if the winning move is found stop there and return the max value
-//				{
-//					is_limit = true;
-//					return numeric_limits<double>::max();
-//				}
-//				player_count = 0;
-//				space_count = 0;
-//			}
-//			else if (board[diaganol] == '-')
-//			{
-//				if (ai_last)
-//				{
-//					check_down = move(diaganol, columns, rows, "down");
-//					if (check_down != -1)
-//					{
-//						if (board[check_down] != '-')
-//							utility += 10;
-//					}
-//				}
-//				else if (player_last)
-//				{
-//					check_down = move(diaganol, columns, rows, "down");
-//					if (check_down != -1)
-//					{
-//						if (board[check_down] != '-')
-//							utility -= 10;
-//					}
-//				}
-//				else
-//					;
-//				space_count++;
-//				if (space_count > 1)
-//				{
-//					if(ai_last)
-//						utility += (ai_count*(10+(ai_count*ai_count)));
-//					
-//					else if (player_last)
-//						utility -= (player_count*(10+(player_count*player_count)));
-//					player_count = 0;
-//					ai_count = 0;
-//				}
-//			}
-//			else
-//			{
-//				if (ai_last)
-//					utility += (ai_count*(10+(ai_count*ai_count)));
-//				player_count++;
-//				player_last = true;
-//				ai_last = false;
-//				if (player_count == r && space_count == 0) // if the losing move is found stop there and return the min value
-//				{
-//					is_limit = true;
-//					return numeric_limits<double>::min();
-//				}
-//				ai_count = 0;
-//				space_count = 0;
-//			}
-//			diaganol = move(diaganol, columns, rows, direction);
-//		}	
-//		return utility;
-//	}
-//}
+int check_diagonals_1 (const int columns, 
+						const int rows, const int r, const vector<char> board,
+						bool& is_limit)
+{
+	bool ai_last = false;
+	bool player_last = false;
+	int utility = 0;
+	int ai_count = 0;
+	int player_count = 0;
+	int space_count = 0;
+	int check_down = 0;
+	int diaganol = 0;
+	int mini = numeric_limits<int>::min();
+	int maxi = numeric_limits<int>::max();
+
+	// check the down right diagonals 
+	for (int i = 0; i <= columns - r; i++)
+	{
+		diaganol = i;
+		while (diaganol != -1)
+		{
+			if (board[diaganol] == 'X')
+			{
+				if (player_last)
+					utility -= (player_count*(10+(player_count*player_count)));
+				ai_count++;
+				ai_last = true;
+				player_last = false;
+				if (ai_count == r && space_count == 0) // if the winning move is found stop there and return the max value
+				{
+					is_limit = true;
+					return maxi;
+				}
+				player_count = 0;
+				space_count = 0;
+			}
+			else if (board[diaganol] == '-')
+			{
+				if (ai_last)
+				{
+					check_down = move(diaganol, columns, rows, "down");
+					if (check_down != -1)
+					{
+						if (board[check_down] != '-')
+							utility += 10;
+					}
+				}
+				else if (player_last)
+				{
+					check_down = move(diaganol, columns, rows, "down");
+					if (check_down != -1)
+					{
+						if (board[check_down] != '-')
+							utility -= 10;
+					}
+				}
+				else
+					;
+				space_count++;
+				if (space_count > 1)
+				{
+					if(ai_last)
+						utility += (ai_count*(10+(ai_count*ai_count)));
+					
+					else if (player_last)
+						utility -= (player_count*(10+(player_count*player_count)));
+					player_count = 0;
+					ai_count = 0;
+				}
+			}
+			else
+			{
+				if (ai_last)
+					utility += (ai_count*(10+(ai_count*ai_count)));
+				player_count++;
+				player_last = true;
+				ai_last = false;
+				if (player_count == r && space_count == 0) // if the losing move is found stop there and return the min value
+				{
+					is_limit = true;
+					return mini;
+				}
+				ai_count = 0;
+				space_count = 0;
+			}
+			diaganol = move(diaganol, columns, rows, "down-right-diagnol");
+		}	
+	}
+	return utility;
+}
+
+// function used to check the diagnols and return a utility
+// based on the heuristic
+int check_diagonals_2 (const int columns, 
+						const int rows, const int r, const vector<char> board,
+						bool& is_limit)
+{
+	bool ai_last = false;
+	bool player_last = false;
+	int utility = 0;
+	int ai_count = 0;
+	int player_count = 0;
+	int space_count = 0;
+	int check_down = 0;
+	int diaganol = 0;
+	int mini = numeric_limits<int>::min();
+	int maxi = numeric_limits<int>::max();
+
+	// check the down right diagonals 
+	for (int i = columns; i/columns < (columns-r); i+=columns)
+	{
+		diaganol = i;
+		while (diaganol != -1)
+		{
+			if (board[diaganol] == 'X')
+			{
+				if (player_last)
+					utility -= (player_count*(10+(player_count*player_count)));
+				ai_count++;
+				ai_last = true;
+				player_last = false;
+				if (ai_count == r && space_count == 0) // if the winning move is found stop there and return the max value
+				{
+					is_limit = true;
+					return maxi;
+				}
+				player_count = 0;
+				space_count = 0;
+			}
+			else if (board[diaganol] == '-')
+			{
+				if (ai_last)
+				{
+					check_down = move(diaganol, columns, rows, "down");
+					if (check_down != -1)
+					{
+						if (board[check_down] != '-')
+							utility += 10;
+					}
+				}
+				else if (player_last)
+				{
+					check_down = move(diaganol, columns, rows, "down");
+					if (check_down != -1)
+					{
+						if (board[check_down] != '-')
+							utility -= 10;
+					}
+				}
+				else
+					;
+				space_count++;
+				if (space_count > 1)
+				{
+					if(ai_last)
+						utility += (ai_count*(10+(ai_count*ai_count)));
+					
+					else if (player_last)
+						utility -= (player_count*(10+(player_count*player_count)));
+					player_count = 0;
+					ai_count = 0;
+				}
+			}
+			else
+			{
+				if (ai_last)
+					utility += (ai_count*(10+(ai_count*ai_count)));
+				player_count++;
+				player_last = true;
+				ai_last = false;
+				if (player_count == r && space_count == 0) // if the losing move is found stop there and return the min value
+				{
+					is_limit = true;
+					return mini;
+				}
+				ai_count = 0;
+				space_count = 0;
+			}
+			diaganol = move(diaganol, columns, rows, "down-right-diagnol");
+		}	
+	}
+	return utility;
+}
+
+// function used to check the first up right diagnols and return a utility based on the heuristic
+int check_diagonals_3 (const int columns, 
+						const int rows, const int r, const vector<char> board,
+						bool& is_limit)
+{
+	bool ai_last = false;
+	bool player_last = false;
+	int utility = 0;
+	int ai_count = 0;
+	int player_count = 0;
+	int space_count = 0;
+	int check_down = 0;
+	int diaganol = 0;
+	int mini = numeric_limits<int>::min();
+	int maxi = numeric_limits<int>::max();
+
+	// check the down right diagonals 
+	for (int i = (columns-r)*columns; i <= (rows*columns)-columns; i+=columns)
+	{
+		diaganol = i;
+		while (diaganol != -1)
+		{
+			if (board[diaganol] == 'X')
+			{
+				if (player_last)
+					utility -= (player_count*(10+(player_count*player_count)));
+				ai_count++;
+				ai_last = true;
+				player_last = false;
+				if (ai_count == r && space_count == 0) // if the winning move is found stop there and return the max value
+				{
+					is_limit = true;
+					return maxi;
+				}
+				player_count = 0;
+				space_count = 0;
+			}
+			else if (board[diaganol] == '-')
+			{
+				if (ai_last)
+				{
+					check_down = move(diaganol, columns, rows, "down");
+					if (check_down != -1)
+					{
+						if (board[check_down] != '-')
+							utility += 10;
+					}
+				}
+				else if (player_last)
+				{
+					check_down = move(diaganol, columns, rows, "down");
+					if (check_down != -1)
+					{
+						if (board[check_down] != '-')
+							utility -= 10;
+					}
+				}
+				else
+					;
+				space_count++;
+				if (space_count > 1)
+				{
+					if(ai_last)
+						utility += (ai_count*(10+(ai_count*ai_count)));
+					
+					else if (player_last)
+						utility -= (player_count*(10+(player_count*player_count)));
+					player_count = 0;
+					ai_count = 0;
+				}
+			}
+			else
+			{
+				if (ai_last)
+					utility += (ai_count*(10+(ai_count*ai_count)));
+				player_count++;
+				player_last = true;
+				ai_last = false;
+				if (player_count == r && space_count == 0) // if the losing move is found stop there and return the min value
+				{
+					is_limit = true;
+					return mini;
+				}
+				ai_count = 0;
+				space_count = 0;
+			}
+			diaganol = move(diaganol, columns, rows, "up-right-diagnol");
+		}	
+	}
+	return utility;
+}
+
+// function used to check the first up right diagnols and return a utility based on the heuristic
+int check_diagonals_4 (const int columns, 
+						const int rows, const int r, const vector<char> board,
+						bool& is_limit)
+{
+	bool ai_last = false;
+	bool player_last = false;
+	int utility = 0;
+	int ai_count = 0;
+	int player_count = 0;
+	int space_count = 0;
+	int check_down = 0;
+	int diaganol = 0;
+	int mini = numeric_limits<int>::min();
+	int maxi = numeric_limits<int>::max();
+
+	// check the down right diagonals 
+	for (int i = (columns*rows)-(columns-1); (i-((columns*rows)-columns)) <= columns-r; i++)
+	{
+		diaganol = i;
+		while (diaganol != -1)
+		{
+			if (board[diaganol] == 'X')
+			{
+				if (player_last)
+					utility -= (player_count*(10+(player_count*player_count)));
+				ai_count++;
+				ai_last = true;
+				player_last = false;
+				if (ai_count == r && space_count == 0) // if the winning move is found stop there and return the max value
+				{
+					is_limit = true;
+					return maxi;
+				}
+				player_count = 0;
+				space_count = 0;
+			}
+			else if (board[diaganol] == '-')
+			{
+				if (ai_last)
+				{
+					check_down = move(diaganol, columns, rows, "down");
+					if (check_down != -1)
+					{
+						if (board[check_down] != '-')
+							utility += 10;
+					}
+				}
+				else if (player_last)
+				{
+					check_down = move(diaganol, columns, rows, "down");
+					if (check_down != -1)
+					{
+						if (board[check_down] != '-')
+							utility -= 10;
+					}
+				}
+				else
+					;
+				space_count++;
+				if (space_count > 1)
+				{
+					if(ai_last)
+						utility += (ai_count*(10+(ai_count*ai_count)));
+					
+					else if (player_last)
+						utility -= (player_count*(10+(player_count*player_count)));
+					player_count = 0;
+					ai_count = 0;
+				}
+			}
+			else
+			{
+				if (ai_last)
+					utility += (ai_count*(10+(ai_count*ai_count)));
+				player_count++;
+				player_last = true;
+				ai_last = false;
+				if (player_count == r && space_count == 0) // if the losing move is found stop there and return the min value
+				{
+					is_limit = true;
+					return mini;
+				}
+				ai_count = 0;
+				space_count = 0;
+			}
+			diaganol = move(diaganol, columns, rows, "up-right-diagnol");
+		}	
+	}
+	return utility;
+}
+
 
 void AI::score_state (state_space& current_state)
 {
@@ -439,7 +720,7 @@ void AI::score_state (state_space& current_state)
 	int utility = 0;
 	int temp;
 
-	temp = check_columns(columns, rows, r, board, is_limit);
+	temp = check_columns(columns, rows, r, board, is_limit); //  check the columns
 	if (is_limit)
 	{
 		current_state.utility = temp;
@@ -447,7 +728,7 @@ void AI::score_state (state_space& current_state)
 	}
 	utility += temp;
 
-	temp = check_rows(columns, rows, r, board, is_limit);
+	temp = check_rows(columns, rows, r, board, is_limit); // check the rows
 	if (is_limit)
 	{
 		current_state.utility = temp;
@@ -455,7 +736,65 @@ void AI::score_state (state_space& current_state)
 	}
 
 	utility += temp;
+	// check the first downward diagnaols
+	temp = check_diagonals_1(columns, rows, r, board, is_limit);
+	if (is_limit)
+	{
+		current_state.utility = temp;
+		return;
+	}
 
-	current_state.utility = utility;
+	// check the next downward diaganols
+	temp = check_diagonals_2(columns, rows, r, board, is_limit);
+	if (is_limit)
+	{
+		current_state.utility = temp;
+		return;
+	}
+	utility += temp;
+
+	// check the first up right diaganols
+	temp = check_diagonals_3(columns, rows, r, board, is_limit);
+	if (is_limit)
+	{
+		current_state.utility = temp;
+		return;
+	}
+	utility += temp;
+
+	// check the last up right diagnols
+	temp = check_diagonals_4(columns, rows, r, board, is_limit);
+	if (is_limit)
+	{
+		current_state.utility = temp;
+		return;
+	}
+	utility += temp;
+
+	current_state.utility = utility; // set the current state's utilty equal to the found utility
 }
 
+int AI::is_game_over (state_space& current_state)
+{
+	score_state(current_state);
+	int score = current_state.utility;
+	if (score == max_value) // if the ai won
+		return 1;
+	else if (score == min_value) // if the player won
+		return -1;
+	else if (is_board_full(current_state)) // if the game was a draw
+		return 2;
+	else return 0;
+
+}
+
+bool AI::is_board_full (state_space& current_state)
+{
+	vector<char> board = current_state.board;
+	for (auto cell : board)
+	{
+		if (cell == '-')
+			return false;
+	}
+	return true;
+}

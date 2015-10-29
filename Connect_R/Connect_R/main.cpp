@@ -15,6 +15,26 @@ int read_int_m ()
 	return value;
 }
 
+AI::state_space play_ai (AI* ai, AI::state_space& game_state)
+{
+	int ai_move = ai->minimax(game_state);
+	try { 
+		game_state = ai->play(game_state, ai_move, true); }
+	catch (runtime_error&) { cout << "not a valid move" << endl; }
+	cout << "AI played in " << ai_move << endl;
+	cout << game_state.to_string() << endl;
+	return game_state;
+}
+
+AI::state_space play_user (AI* ai, AI::state_space& game_state)
+{
+	cout << "choose column to play in " << endl;
+	int user_move = read_int_m();
+	game_state = ai->play(game_state, user_move, false);
+	cout << game_state.to_string() << endl;
+	return game_state;
+}
+
 int main (void)
 {
 	bool cont = true;
@@ -47,14 +67,22 @@ int main (void)
 	AI* ai = new AI();
 	//cout << game_state.to_string() << endl;
 
-	game_state = ai->play(game_state, 0, false);
-	game_state = ai->play(game_state, 1, false);
-	game_state = ai->play(game_state, 2, false);
-	game_state = ai->play(game_state, 4, false);
-	ai->score_state(game_state);
-	cout << game_state.utility << endl;
 	cout << game_state.to_string() << endl;
-	//cout << ai->minimax(game_state) << endl;
+	int game_value = ai->is_game_over(game_state);
+	while (game_value == 0)
+	{
+		game_state = play_user(ai, game_state);
+		game_state = play_ai(ai, game_state);
+		game_value = ai->is_game_over(game_state);
+	}
+	if (game_value == 1)
+		cout << "I won" << endl;\
+	else if (game_value = -1)
+		cout << "you won" << endl;
+	else
+	{
+		cout << "Draw" << endl;
+	}
 
 	// because using System("pause") is apparently an awful thing
 	std::cout << "Press ENTER to continue...";
