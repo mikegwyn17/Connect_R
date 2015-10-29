@@ -45,12 +45,18 @@ int main (void)
 	starting_board.resize((number_of_columns*number_of_rows), '-');
 	AI::state_space game_state = AI::state_space(starting_board, r, number_of_columns, number_of_rows);
 	AI* ai = new AI();
+	//cout << game_state.to_string() << endl;
+
+	game_state = ai->play(game_state, 0, false);
+	game_state = ai->play(game_state, 1, false);
+	game_state = ai->play(game_state, 2, false);
+	game_state = ai->play(game_state, 4, false);
+	ai->score_state(game_state);
+	cout << game_state.utility << endl;
 	cout << game_state.to_string() << endl;
+	//cout << ai->minimax(game_state) << endl;
 
-	ai->play(game_state, 3, false);
-	cout << ai->minimax(game_state) << endl;
-
-
+	// because using System("pause") is apparently an awful thing
 	std::cout << "Press ENTER to continue...";
   	std::cin.ignore( numeric_limits<streamsize>::max(), '\n' );
 	return 1;

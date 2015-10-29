@@ -70,8 +70,7 @@ AI::AI(void)
 {
 	max_value = numeric_limits<int>::max();
 	min_value = numeric_limits<int>::min();
-	max_depth = 8;
-	srand(time(NULL));
+	max_depth = 2;
 }
 
 AI::~AI(void)
@@ -79,7 +78,8 @@ AI::~AI(void)
 
 }
 
-AI::state_space AI::play (state_space& current_state, const int move_placed, const bool is_turn)
+AI::state_space AI::play (state_space& current_state, const int move_placed,
+						  const bool is_turn)
 {
 	int rows = current_state.rows;
 	int columns = current_state.columns;
@@ -90,22 +90,19 @@ AI::state_space AI::play (state_space& current_state, const int move_placed, con
 	{
 		throw runtime_error ("Column Full"); 
 	}
-	//	return current_state;
-	//else
-	//{
-		to_play = ((rows*columns) - columns) + move_placed; // start at the bottom of the board in the given column
-		while (board[to_play] != '-')
-		{
-			to_play = move(to_play, columns, rows, "up");
-		}
-		state_space new_state (current_state);
-		if (is_turn)
-			new_state.board[to_play] = 'X';
-		else
-			new_state.board[to_play] = 'O';
 
-		return new_state;
-	//}
+	to_play = ((rows*columns) - columns) + move_placed; // start at the bottom of the board in the given column
+	while (board[to_play] != '-')
+	{
+		to_play = move(to_play, columns, rows, "up");
+	}
+	state_space new_state (current_state);
+	if (is_turn)
+		new_state.board[to_play] = 'X';
+	else
+		new_state.board[to_play] = 'O';
+
+	return new_state;
 }
 
 int AI::minimax(state_space& current_state)
@@ -178,14 +175,20 @@ void AI::minimize (state_space& current_state, int depth)
 	current_state.utility = m;
 }
 
-int check_columns (const int columns, const int rows, const int r, const vector<char> board, bool& is_limit)
+// part of the heuristic, checks all of the columns of the given board
+// and calculates a utility based on the placement of the pieces
+int check_columns (const int columns, const int rows,
+				   const int r, const vector<char> board,
+				   bool& is_limit)
 {
 	bool ai_last = false;
 	bool player_last = false;
-	double utility = 0;
+	int utility = 0;
 	int ai_count = 0;
 	int player_count = 0;
 	int column = 0;
+	int mini = numeric_limits<int>::min();
+	int maxi = numeric_limits<int>::max();
 	// check the columns to see if there 
 	for (int i = 0; i < columns; i++)
 	{
@@ -201,9 +204,9 @@ int check_columns (const int columns, const int rows, const int r, const vector<
 				if (ai_count == r) // if the winning move is found stop there and return the max value
 				{
 					is_limit = true;
-					return numeric_limits<double>::max();
+					return maxi;
 				}
-				//utility -= (player_count*10);
+
 				player_count = 0;
 			}
 			else if (board[column] == '-')
@@ -226,7 +229,7 @@ int check_columns (const int columns, const int rows, const int r, const vector<
 				if (player_count == r) // if the losing move is found stop there and return the min value
 				{
 					is_limit = true;
-					return numeric_limits<double>::min();
+					return mini;
 				}
 				//utility += (ai_count*10);
 				ai_count = 0;
@@ -236,6 +239,195 @@ int check_columns (const int columns, const int rows, const int r, const vector<
 	}
 	return utility;
 }
+
+// function used to check the rows and return a utility based
+// on the heuristic
+int check_rows (const int columns, const int rows,
+				const int r, const vector<char> board,
+				bool& is_limit)
+{
+	bool ai_last = false;
+	bool player_last = false;
+	int utility = 0;
+	int ai_count = 0;
+	int player_count = 0;
+	int space_count = 0;
+	int check_down = 0;
+	int mini = numeric_limits<int>::min();
+	int maxi = numeric_limits<int>::max();
+	int row = 0;
+
+	for (int i = 0; i < rows; i++)
+	{
+		row = i;
+		row *= (columns);
+		while (row != -1)
+		{
+			if (board[row] == 'X')
+			{
+				if (player_last)
+					utility -= (player_count*(10+(player_count*player_count)));
+				ai_count++;
+				ai_last = true;
+				player_last = false;
+				if (ai_count == r && space_count == 0) // if the winning move is found stop there and return the max value
+				{
+					is_limit = true;
+					return maxi;
+				}
+				player_count = 0;
+				space_count = 0;
+			}
+			else if (board[row] == '-')
+			{
+				if (ai_last)
+				{
+					check_down = move(row, columns, rows, "down");
+					if (check_down != -1)
+					{
+						if (board[check_down] != '-')
+							utility += 10;
+					}
+				}
+				else if (player_last)
+				{
+					check_down = move(row, columns, rows, "down");
+					if (check_down != -1)
+					{
+						if (board[check_down] != '-')
+							utility -= 10;
+					}
+				}
+				else
+					;
+				space_count++;
+				if (space_count > 1)
+				{
+					if(ai_last)
+						utility += (ai_count*(10+(ai_count*ai_count)));
+					
+					else if (player_last)
+						utility -= (player_count*(10+(player_count*player_count)));
+					player_count = 0;
+					ai_count = 0;
+				}
+			}
+			else
+			{
+				if (ai_last)
+					utility += (ai_count*(10+(ai_count*ai_count)));
+				player_count++;
+				player_last = true;
+				ai_last = false;
+				if (player_count == r && space_count == 0) // if the losing move is found stop there and return the min value
+				{
+					is_limit = true;
+					return mini;
+				}
+				ai_count = 0;
+				space_count = 0;
+			}
+			row = move(row, columns, rows, "right");
+		}
+
+
+	}
+	return utility;
+}
+
+// function used to check the diagnols and return a utility
+// based on the heuristic
+//int check_diagonals (const int columns, 
+//						const int rows, const int r, const vector<char> board,
+//						bool& is_limit, const int starting_value,
+//						const string direction)
+//{
+//	bool ai_last = false;
+//	bool player_last = false;
+//	int utility = 0;
+//	int ai_count = 0;
+//	int player_count = 0;
+//	int space_count = 0;
+//	int check_down = 0;
+//	int diaganol = 0;
+//	int mini = numeric_limits<int>::min();
+//	int maxi = numeric_limits<int>::max();
+//
+//	// check the down right diagonals 
+//	for (int i = starting_value; i <= columns - r; i++)
+//	{
+//		diaganol = i;
+//		while (diaganol != -1)
+//		{
+//			if (board[diaganol] == 'X')
+//			{
+//				if (player_last)
+//					utility -= (player_count*(10+(player_count*player_count)));
+//				ai_count++;
+//				ai_last = true;
+//				player_last = false;
+//				if (ai_count == r && space_count == 0) // if the winning move is found stop there and return the max value
+//				{
+//					is_limit = true;
+//					return numeric_limits<double>::max();
+//				}
+//				player_count = 0;
+//				space_count = 0;
+//			}
+//			else if (board[diaganol] == '-')
+//			{
+//				if (ai_last)
+//				{
+//					check_down = move(diaganol, columns, rows, "down");
+//					if (check_down != -1)
+//					{
+//						if (board[check_down] != '-')
+//							utility += 10;
+//					}
+//				}
+//				else if (player_last)
+//				{
+//					check_down = move(diaganol, columns, rows, "down");
+//					if (check_down != -1)
+//					{
+//						if (board[check_down] != '-')
+//							utility -= 10;
+//					}
+//				}
+//				else
+//					;
+//				space_count++;
+//				if (space_count > 1)
+//				{
+//					if(ai_last)
+//						utility += (ai_count*(10+(ai_count*ai_count)));
+//					
+//					else if (player_last)
+//						utility -= (player_count*(10+(player_count*player_count)));
+//					player_count = 0;
+//					ai_count = 0;
+//				}
+//			}
+//			else
+//			{
+//				if (ai_last)
+//					utility += (ai_count*(10+(ai_count*ai_count)));
+//				player_count++;
+//				player_last = true;
+//				ai_last = false;
+//				if (player_count == r && space_count == 0) // if the losing move is found stop there and return the min value
+//				{
+//					is_limit = true;
+//					return numeric_limits<double>::min();
+//				}
+//				ai_count = 0;
+//				space_count = 0;
+//			}
+//			diaganol = move(diaganol, columns, rows, direction);
+//		}	
+//		return utility;
+//	}
+//}
 
 void AI::score_state (state_space& current_state)
 {
@@ -250,9 +442,18 @@ void AI::score_state (state_space& current_state)
 	temp = check_columns(columns, rows, r, board, is_limit);
 	if (is_limit)
 	{
-		current_state.utility = utility;
+		current_state.utility = temp;
 		return;
 	}
+	utility += temp;
+
+	temp = check_rows(columns, rows, r, board, is_limit);
+	if (is_limit)
+	{
+		current_state.utility = temp;
+		return;
+	}
+
 	utility += temp;
 
 	current_state.utility = utility;
